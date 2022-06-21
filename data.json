@@ -1,0 +1,25 @@
+{
+  "products": [
+    {
+      "image": "img1.jpg",
+      "name": "Нож складной WENGER",
+      "price": 990,
+      "id": 1,
+      "quantity": 1
+    },
+    {
+      "image": "img2.jpg",
+      "name": "Рюкзак WENGER",
+      "price": 5500,
+      "id": 2,
+      "quantity": 1
+    },
+    {
+      "image": "img3.png",
+      "name": "Перьевая ручка Waterman",
+      "price": 450,
+      "id": 3,
+      "quantity": 1
+    }
+  ]
+}

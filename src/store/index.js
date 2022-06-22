@@ -1,94 +1,55 @@
 import { createStore } from 'vuex'
-import axios from 'axios';
 
-// function updateLocalStorage(products) {
-//   localStorage.setItem('products', JSON.stringify(products))
-// }
 
 const store = createStore({
   state: {
-    // data: {
-    products: [],
-    quantityInCartStore: []
-    // }
+    products: [
+      {
+        "image": "img1.jpg",
+        "name": "Нож складной WENGER",
+        "price": 990,
+        "id": 1,
+        "quantity": 1
+      },
+      {
+        "image": "img2.jpg",
+        "name": "Рюкзак WENGER",
+        "price": 5500,
+        "id": 2,
+        "quantity": 1
+      },
+      {
+        "image": "img3.png",
+        "name": "Перьевая ручка Waterman",
+        "price": 450,
+        "id": 3,
+        "quantity": 1
+      }
+    ],
   },
   mutations: {
-    PUT_PRODUCTS_TO_STATE: (state, payload) => {
-      state.products = payload
-
-    },
-    INCREASE: (state, index) => {
-      // const item = state.products.find( i => i.index === index)
-      // if(item) {
-      // quantityInModal++
-      // }
-      // updateLocalStorage(state.products)
-      // console.log(index)
-      // state.products.map((item) => {
-      //   if (item.index === index) { 
-      state.products[index].quantity++
-      //   // state.products[index].quantityInModal++
-      //   }
-      console.log()
-
-      // }
-      // )
-
-    },
-
-    DECREASE: (state, index) => {
-      // state.products.map( (item)=> {
-      //   if (item.index === index && item.quantity > 1) { item.quantity-- }
-      // })
-      if (state.products[index].quantity > 1) {
-        state.products[index].quantity--
-      }
-
-      console.log(index)
-    },
-
     UPDATE_CART: (state, payload) => {
-      console.log(payload)
-      state.products[payload.index].quantity = payload.test
+      state.products[payload.index].quantity = payload.quantityInModalToCart
       payload.totalInCart = payload.totalInModal
-      console.log(payload.totalInCart)
     },
 
     DELETE_CHECKED: (state, checked) => {
       state.products = state.products.filter(a => !checked.includes(a))
-      console.log(checked)
     }
   },
   actions: {
-    async fetchProducts({ commit }) {
-      try {
-        const { data } = await axios('http://localhost:3000/products', {
-          method: "GET"
-        })
-
-
-        commit('PUT_PRODUCTS_TO_STATE', data)
-
-      }
-      catch (error) {
-        console.log(error)
-      }
-    },
-    async increaseQuantity({ commit }, index) {
-      commit('INCREASE', index)
-    },
     async saveToStore({ commit }, payload) {
       commit('UPDATE_CART', payload)
-    },
-    async decreaseQuantity({ commit }, index) {
-      commit('DECREASE', index)
     },
     async deleteCheckedItem({ commit }, checked) {
       commit('DELETE_CHECKED', checked)
     }
   },
   getters: {
-    cartTotal(state) {
+    fetchProducts: state => {
+      return state.products
+    },
+    cartTotal: state => {
       let result = [];
       if (state.products.length) {
         for (let el of state.products) {
@@ -103,6 +64,7 @@ const store = createStore({
         return 0;
       }
     },
+
   },
 
 })

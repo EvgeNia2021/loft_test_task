@@ -10,7 +10,6 @@ export default {
    
   },
   mounted() {
-      this.$store.commit('updateCartFromLocalStorage')
     }
 }
 </script>

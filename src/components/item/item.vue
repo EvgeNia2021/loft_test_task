@@ -25,42 +25,62 @@
           {{ product_data.quantity }}
         </button>
       </div>
-      <div class="item__total">{{ totalInCart }}</div>
+      <div class="item__total">{{ totalInCart }} Р</div>
     </div>
     <modal>
       <template #modal>
-        <div class="modal" v-show="modalActive">
+        <div
+          class="modal"
+          v-show="modalActive"
+          v-click-outside="onClickOutside"
+        >
           <div class="modal__title">Изменить количество</div>
-          <div class="modal__price">{{ product_data.price }} x</div>
-          <button
-            type="button"
-            class="modal__btn"
-            @click="decreaseItemQuantity"
-          >
-            -
-          </button>
-          <span type="number" class="modal__input">{{ quantityInCart }}</span>
-          <button
-            type="button"
-            class="modal__btn"
-            @click="increaseItemQuantity"
-          >
-            +
-          </button>
-          <span type="number" class="modal__input">{{ totalInModal }}</span>
-          <button type="button" @click="saveNumberToStore(temp)">
-            сохранить
-          </button>
-          <button
-            type="button"
-            @click="
-              closeModal();
-              modalActive = false;
-            "
-          >
-            закрыть
-          </button>
-          <div class="modal__total">{{ product_data.price }}</div>
+          <div class="modal__change change">
+            <div class="change__price">{{ product_data.price }} x</div>
+
+            <button
+              type="button"
+              class="change__btn"
+              @click="decreaseItemQuantity"
+            >
+              -
+            </button>
+            <span type="number" class="change__input">{{
+              defQuantityInModal
+            }}</span>
+            <button
+              type="button"
+              class="change__btn"
+              @click="increaseItemQuantity"
+            >
+              +
+            </button>
+            <span type="number" class="change__total"
+              >{{ totalInModal }} Р</span
+            >
+          </div>
+          <div class="change__btns btns">
+            <button
+              type="button"
+              class="btns__save"
+              @click="
+                saveNumberToStore();
+                modalActive = false;
+              "
+            >
+              сохранить
+            </button>
+            <button
+              type="button"
+              class="btns__decline"
+              @click="
+                closeModal();
+                modalActive = false;
+              "
+            >
+              отменить
+            </button>
+          </div>
         </div>
       </template>
     </modal>
@@ -70,10 +90,13 @@
 <script>
 import { modal } from "../modal";
 import { ref } from "vue";
-import { mapActions } from "vuex";
+import vClickOutside from "click-outside-vue3";
 
 export default {
   name: "ItemComponent",
+  directives: {
+    clickOutside: vClickOutside.directive,
+  },
   props: {
     product_data: {
       type: Object,
@@ -81,17 +104,10 @@ export default {
         return {};
       },
     },
-    quantityInCart2: {
-      type: Number,
-    },
     index: {
       type: Number,
     },
-
-    id: {
-      type: Number,
-    },
-    index2: {
+    indexToStore: {
       type: Number,
     },
   },
@@ -99,11 +115,7 @@ export default {
     modal,
   },
   emits: [
-    "increaseItemQuantity",
-    "decreaseItemQuantity",
     "saveNumberToStore",
-    "increaseQuantityInModal",
-    "decreaseQuantityInModal",
     "checkItem",
     "deleteChecked",
   ],
@@ -112,23 +124,18 @@ export default {
   },
   computed: {
     totalInModal() {
-      let sumInModal = this.product_data.price * this.quantityInCart;
+      let sumInModal = this.product_data.price * this.defQuantityInModal;
       return sumInModal;
     },
     totalInCart() {
       let sumInCart = this.product_data.price * this.product_data.quantity;
       return sumInCart;
     },
-    quan() {
-      let result = this.temp;
-      return result;
-    },
   },
 
   setup() {
     const modalActive = ref(false);
-    // const totalInCart = ref(product_data.price)
-    const quantityInCart = ref(1);
+    const defQuantityInModal = ref(1);
     const toggleModal = () => {
       modalActive.value = !modalActive.value;
     };
@@ -137,36 +144,27 @@ export default {
     };
 
     return {
-      quantityInCart,
+      defQuantityInModal,
       modalActive,
       toggleModal,
       closeModal,
-      // totalInCart
     };
   },
   methods: {
-    ...mapActions({
-      saveToStore: "saveToStore",
-    }),
     saveNumberToStore() {
-      const quan = this.quantityInCart;
       this.$emit("saveNumberToStore", {
-        quan: quan,
-        index2: this.index2,
+        quantityInModal: this.defQuantityInModal,
+        indexToStore: this.indexToStore,
         totalInCart: this.totalInCart,
         totalInModal: this.totalInModal,
       });
     },
-    // refreshModal() {
-    //   this.$emit("refreshModal");
-    // },
-
     increaseItemQuantity() {
-      this.quantityInCart++;
+      this.defQuantityInModal++;
     },
 
     decreaseItemQuantity() {
-      if (this.quantityInCart > 1) this.quantityInCart--;
+      if (this.defQuantityInModal > 1) this.defQuantityInModal--;
     },
 
     checkItem(product) {
@@ -175,12 +173,9 @@ export default {
     deleteChecked() {
       this.$emit("deleteChecked");
     },
-    onClick: function (modalActive) {
-      modalActive.value = false;
+    onClickOutside() {
+      this.modalActive = false;
     },
-  },
-  mounted: function () {
-    window.addEventListener("click", this.onClick);
   },
 };
 </script>

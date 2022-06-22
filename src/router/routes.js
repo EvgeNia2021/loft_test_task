@@ -1,11 +1,11 @@
-import { main } from '../pages/main'
+import { Main } from '../pages/main'
 import { Cart } from '../components/cart'
 
 export default [
   {
     path: '/',
     name: 'MainPage',
-    component: main
+    component: Main
   },
   {
     path: '/cart',

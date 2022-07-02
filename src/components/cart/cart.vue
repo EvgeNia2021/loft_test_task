@@ -9,7 +9,7 @@
             <div class="counter__title">Выделено</div>
             <div class="counter__number">{{ checked.length }}</div>
           </div>
-          <div class="header__btn btn" @click="OnDeleteChecked(checked)">
+          <div class="header__btn btn" @click="deleteChecked()">
             <div class="btn__cross"></div>
             <div class="btn__text">Удалить отмеченные</div>
           </div>
@@ -20,11 +20,7 @@
             :key="product.id"
             :product_data="product"
             :index="index"
-            :indexToStore="index"
-            :totalInCart="totalInCart"
-            @saveNumberToStore="OnSaveNumberToStore"
             @checkItem="OnCheckItem(product)"
-            @deleteChecked="OnDeleteChecked"
           ></ItemComponent>
         </ul>
         <div class="cart__footer footer">
@@ -51,8 +47,8 @@
 <script>
 import { ItemComponent } from "../../components/item";
 import { Navigation } from "../../components/navigation";
-import { mapState, mapActions, mapGetters } from "vuex";
-import { ref } from "vue";
+import { useStore } from "vuex";
+import { ref, computed, onMounted } from "vue";
 
 export default {
   name: "CartComponent",
@@ -60,71 +56,37 @@ export default {
     ItemComponent,
     Navigation,
   },
-
-  props: ["product"],
-  data() {
-    return {
-      checked: [],
-      quantityInModalToCart: Number,
-      indexToStore: Number,
-      totalInCart: Number,
-      totalInModal: Number,
-    };
-  },
   setup() {
-    const quantityInCart = ref(1);
+    const store = useStore();
+    const checked = ref([]);
+
+    onMounted(() => {
+      store.dispatch("fetchProducts");
+    });
+
+    const OnCheckItem = (product) => {
+      if (checked.value.includes(product)) {
+        let productIndex = checked.value.indexOf(product);
+        checked.value.splice(productIndex, 1);
+      } else {
+        checked.value.push(product);
+      }
+    };
+
+    const deleteChecked = () => {
+      store.dispatch("deleteCheckedItem", checked.value);
+      checked.value = [];
+    };
+
     return {
-      quantityInCart,
+      products: computed(() => store.state.products),
+      cartTotal: computed(() => store.getters.cartTotal),
+      tax: computed(() => Math.round((store.getters.cartTotal / 100) * 18)),
+      checked,
+      OnCheckItem,
+      deleteChecked,
     };
   },
-  emits: ["saveNumberToStore", "deleteChecked"],
-
-  computed: {
-    ...mapState({
-      products: (state) => state.products,
-    }),
-
-    ...mapGetters(["cartTotal"]),
-
-    tax() {
-      let taxes = Math.round((this.cartTotal / 100) * 18);
-      return taxes;
-    },
-  },
-  methods: {
-    ...mapActions({
-      saveToStore: "saveToStore",
-      deleteCheckedItem: "deleteCheckedItem",
-    }),
-
-    OnSaveNumberToStore(payload) {
-      this.quantityInModalToCart = payload.quantityInModal;
-      this.indexToStore = payload.indexToStore;
-      this.totalInCart = payload.totalInCart;
-      this.totalInModal = payload.totalInModal;
-      this.saveToStore({
-        quantityInModalToCart: this.quantityInModalToCart,
-        index: this.indexToStore,
-        totalInCart: this.totalInCart,
-        totalInModal: this.totalInModal,
-      });
-    },
-
-    OnCheckItem(product) {
-      if (this.checked.includes(product)) {
-        let productIndex = this.checked.indexOf(product);
-        this.checked.splice(productIndex, 1);
-      } else {
-        this.checked.push(product);
-      }
-    },
-
-    OnDeleteChecked(checked) {
-      this.deleteCheckedItem(checked);
-      this.checked = [];
-    },
-  },
-  async mounted() {},
 };
 </script>
 

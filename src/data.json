@@ -1,5 +1,6 @@
-{
-  "products": [
+{ 
+  "data":
+[
     {
       "image": "img1.jpg",
       "name": "Нож складной WENGER",
@@ -21,5 +22,6 @@
       "id": 3,
       "quantity": 1
     }
+  
   ]
 }

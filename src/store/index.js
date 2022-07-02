@@ -1,36 +1,21 @@
 import { createStore } from 'vuex'
+import dataFromJson from "../data.json"
 
 
 const store = createStore({
+
   state: {
-    products: [
-      {
-        "image": "img1.jpg",
-        "name": "Нож складной WENGER",
-        "price": 990,
-        "id": 1,
-        "quantity": 1
-      },
-      {
-        "image": "img2.jpg",
-        "name": "Рюкзак WENGER",
-        "price": 5500,
-        "id": 2,
-        "quantity": 1
-      },
-      {
-        "image": "img3.png",
-        "name": "Перьевая ручка Waterman",
-        "price": 450,
-        "id": 3,
-        "quantity": 1
-      }
-    ],
+    products: []
+
   },
   mutations: {
+    PUT_PRODUCTS_TO_STATE: (state, data) => {
+      state.products = data
+
+    },
+
     UPDATE_CART: (state, payload) => {
       state.products[payload.index].quantity = payload.quantityInModalToCart
-      payload.totalInCart = payload.totalInModal
     },
 
     DELETE_CHECKED: (state, checked) => {
@@ -38,6 +23,18 @@ const store = createStore({
     }
   },
   actions: {
+    async fetchProducts({ commit }) {
+      try {
+        const { data } = dataFromJson
+
+        commit('PUT_PRODUCTS_TO_STATE', data)
+
+      }
+      catch (error) {
+        console.log(error)
+      }
+    },
+
     async saveToStore({ commit }, payload) {
       commit('UPDATE_CART', payload)
     },
@@ -46,9 +43,6 @@ const store = createStore({
     }
   },
   getters: {
-    fetchProducts: state => {
-      return state.products
-    },
     cartTotal: state => {
       let result = [];
       if (state.products.length) {
@@ -64,6 +58,7 @@ const store = createStore({
         return 0;
       }
     },
+
 
   },
 

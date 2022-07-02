@@ -27,13 +27,9 @@
       </div>
       <div class="item__total">{{ totalInCart }} Р</div>
     </div>
-    <modal>
+    <modal v-if="modalActive">
       <template #modal>
-        <div
-          class="modal"
-          v-show="modalActive"
-          v-click-outside="onClickOutside"
-        >
+        <div class="modal" v-click-outside="onClickOutside">
           <div class="modal__title">Изменить количество</div>
           <div class="modal__change change">
             <div class="change__price">{{ product_data.price }} x</div>
@@ -89,13 +85,18 @@
 
 <script>
 import { modal } from "../modal";
-import { ref } from "vue";
+import { computed } from "vue";
+import { useStore } from "vuex";
 import vClickOutside from "click-outside-vue3";
+import useModal from "../composables/useModal";
 
 export default {
   name: "ItemComponent",
   directives: {
     clickOutside: vClickOutside.directive,
+  },
+  components: {
+    modal,
   },
   props: {
     product_data: {
@@ -107,75 +108,55 @@ export default {
     index: {
       type: Number,
     },
-    indexToStore: {
-      type: Number,
-    },
   },
-  components: {
-    modal,
-  },
-  emits: [
-    "saveNumberToStore",
-    "checkItem",
-    "deleteChecked",
-  ],
-  data() {
-    return {};
-  },
-  computed: {
-    totalInModal() {
-      let sumInModal = this.product_data.price * this.defQuantityInModal;
-      return sumInModal;
-    },
-    totalInCart() {
-      let sumInCart = this.product_data.price * this.product_data.quantity;
-      return sumInCart;
-    },
-  },
+  emits: ["checkItem",],
+  setup(props, { emit }) {
+    const {
+      defQuantityInModal,
+      modalActive,
+      toggleModal,
+      closeModal,
+      onClickOutside,
+      increaseItemQuantity,
+      decreaseItemQuantity,
+    } = useModal();
+    const store = useStore();
 
-  setup() {
-    const modalActive = ref(false);
-    const defQuantityInModal = ref(1);
-    const toggleModal = () => {
-      modalActive.value = !modalActive.value;
+    const totalInModal = computed(() => {
+      let sumInModal = props.product_data.price * defQuantityInModal.value;
+      return sumInModal;
+    });
+    const totalInCart = computed(() => {
+      let sumInCart = props.product_data.price * props.product_data.quantity;
+      return sumInCart;
+    });
+
+    const saveNumberToStore = () => {
+      store.dispatch("saveToStore", {
+        quantityInModalToCart: defQuantityInModal.value,
+        index: props.index,
+      });
     };
-    const closeModal = () => {
-      modalActive.value = false;
+    
+    const checkItem = (product) => {
+      emit("checkItem", product);
     };
+  
 
     return {
       defQuantityInModal,
       modalActive,
       toggleModal,
       closeModal,
+      onClickOutside,
+      increaseItemQuantity,
+      decreaseItemQuantity,
+      totalInModal,
+      totalInCart,
+      checkItem,
+      // deleteChecked,
+      saveNumberToStore,
     };
-  },
-  methods: {
-    saveNumberToStore() {
-      this.$emit("saveNumberToStore", {
-        quantityInModal: this.defQuantityInModal,
-        indexToStore: this.indexToStore,
-        totalInCart: this.totalInCart,
-        totalInModal: this.totalInModal,
-      });
-    },
-    increaseItemQuantity() {
-      this.defQuantityInModal++;
-    },
-
-    decreaseItemQuantity() {
-      if (this.defQuantityInModal > 1) this.defQuantityInModal--;
-    },
-
-    checkItem(product) {
-      this.$emit("checkItem", product);
-    },
-    deleteChecked() {
-      this.$emit("deleteChecked");
-    },
-    onClickOutside() {
-      this.modalActive = false;
-    },
   },
 };
 </script>

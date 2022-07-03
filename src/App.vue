@@ -6,12 +6,7 @@
 
 export default {
   name: 'App',
-  components: {
-   
-  },
-  mounted() {
-    }
 }
 </script>
 
-<style src="./global.scss" lang="scss"></style>
+<style src="./assets/global.scss" lang="scss"></style>

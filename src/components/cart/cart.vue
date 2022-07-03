@@ -9,7 +9,7 @@
             <div class="counter__title">Выделено</div>
             <div class="counter__number">{{ checked.length }}</div>
           </div>
-          <div class="header__btn btn" @click="deleteChecked()">
+          <div class="header__btn btn" @click="deleteChecked">
             <div class="btn__cross"></div>
             <div class="btn__text">Удалить отмеченные</div>
           </div>

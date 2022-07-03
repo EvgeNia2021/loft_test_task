@@ -139,6 +139,7 @@
 }
 
 .btn {
+  cursor: pointer;
   &__text {
     text-decoration: underline;
 
@@ -149,7 +150,6 @@
     @include cross(20px, lightgrey, 4px);  
     background-color: grey;
     border-radius: 4px;
-    
   }
   
 }
